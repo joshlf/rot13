@@ -22,12 +22,9 @@ type runeReader struct {
 
 func (r byteReader) Read(p []byte) (int, error) {
 	n, err := r.r.Read(p)
-	if err != nil {
-		return n, err
-	}
 
 	for i := 0; i < n; i++ {
-		p[i] = rotByte(p[i])
+		p[i] = Rot13(p[i])
 	}
 
 	return n, err
@@ -37,7 +34,7 @@ func (w byteWriter) Write(p []byte) (int, error) {
 	q := make([]byte, len(p))
 
 	for i, b := range p {
-		q[i] = rotByte(b)
+		q[i] = Rot13(b)
 	}
 
 	n, err := w.w.Write(q)
@@ -47,10 +44,13 @@ func (w byteWriter) Write(p []byte) (int, error) {
 
 func (r runeReader) ReadRune() (rune, int, error) {
 	rn, n, err := r.r.ReadRune()
-	return rotRune(rn), n, err
+	return Rot13Rune(rn), n, err
 }
 
-func rotByte(b byte) byte {
+// If b is an alphabetic character,
+// Rot13 rotates it 13 alphabetic places forward
+// (wrapping around if necessary).
+func Rot13(b byte) byte {
 	switch {
 	case b >= 'A' && b <= 'Z':
 		return 'A' + (((b - 'A') + 13) % 26)
@@ -61,7 +61,10 @@ func rotByte(b byte) byte {
 	}
 }
 
-func rotRune(r rune) rune {
+// If r is an alphabetic ASCII character,
+// Rot13Rune rotates it 13 alphabetic places
+// forward (wrapping around if necessary).
+func Rot13Rune(r rune) rune {
 	switch {
 	case r >= 'A' && r <= 'Z':
 		return 'A' + (((r - 'A') + 13) % 26)
@@ -72,31 +75,17 @@ func rotRune(r rune) rune {
 	}
 }
 
-// If b is an alphabetic character,
-// Rot13 rotates it 13 alphabetic places forward
-// (wrapping around if necessary).
-func Rot13(b byte) byte {
-	return rotByte(b)
-}
-
-// If r is an alphabetic ASCII character,
-// Rot13Rune rotates it 13 alphabetic places
-// forward (wrapping around if necessary).
-func Rot13Rune(r rune) rune {
-	return rotRune(r)
-}
-
 // Rot13Bytes applies Rot13 to each byte in b.
 func Rot13Bytes(b []byte) {
 	for i, v := range b {
-		b[i] = rotByte(v)
+		b[i] = Rot13(v)
 	}
 }
 
 // Rot13Runes applies Rot13Rune to each rune in r.
 func Rot13Runes(r []rune) {
 	for i, v := range r {
-		r[i] = rotRune(v)
+		r[i] = Rot13Rune(v)
 	}
 }
 
