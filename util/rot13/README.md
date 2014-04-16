@@ -8,3 +8,5 @@ rot13 command line utility
 ==========================
 
 This is a command line utility based on the [rot13](https://github.com/joshlf13/rot13) Go package. It simply rot13's its input and copies it to stdout. It takes no arguments.
+
+To install, run `go get github.com/joshlf13/rot13/util/rot13`.
