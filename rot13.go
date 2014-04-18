@@ -13,7 +13,8 @@ type byteReader struct {
 }
 
 type byteWriter struct {
-	w io.Writer
+	w   io.Writer
+	buf []byte // temporary buffer
 }
 
 type runeReader struct {
@@ -31,13 +32,13 @@ func (r byteReader) Read(p []byte) (int, error) {
 }
 
 func (w byteWriter) Write(p []byte) (int, error) {
-	q := make([]byte, len(p))
+	w.buf = append(w.buf[:0], p...)
 
 	for i, b := range p {
-		q[i] = Rot13(b)
+		w.buf[i] = Rot13(b)
 	}
 
-	n, err := w.w.Write(q)
+	n, err := w.w.Write(w.buf)
 
 	return n, err
 }
@@ -100,7 +101,7 @@ func NewReader(r io.Reader) io.Reader {
 // rot13's the given bytes before passing them to
 // w's Write method.
 func NewWriter(w io.Writer) io.Writer {
-	return byteWriter{w}
+	return byteWriter{w: w}
 }
 
 // NewReader returns an io.Reader whose ReadRune method
